@@ -1,0 +1,55 @@
+{
+  "links": [
+    {
+      "lag_mode": null,
+      "link_group_label": null,
+      "switch": {
+        "system_id": "{{ switch_id }}",
+        "transformation_id": 2,
+        "if_name": "{{ switch_if_name }}"
+      },
+      "system": {
+        "system_id": null
+      }
+    }
+  ],
+  "new_systems": [
+    {
+      "system_type": "server",
+      "hostname": "{{ devicelabel }}",
+      "label": "{{ devicelabel }}",
+      "logical_device": {
+        "id": "{{ logical_deviceid }}",
+        "display_name": "{{ logical_deviceid }}",
+        "panels": [
+          {
+            "port_groups": [
+              {
+                "roles": [
+                  "leaf",
+                  "access"
+                ],
+                "count": 1,
+                "speed": {
+                  "value": 10,
+                  "unit": "G"
+                }
+              }
+            ],
+            "port_indexing": {
+              "schema": "absolute",
+              "order": "T-B, L-R",
+              "start_index": 1
+            },
+            "panel_layout": {
+              "row_count": 1,
+              "column_count": 1
+            }
+          }
+        ]
+      },
+      "port_channel_id_min": 0,
+      "port_channel_id_max": 0
+    }
+  ]
+}

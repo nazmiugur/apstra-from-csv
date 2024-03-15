@@ -1,0 +1,12 @@
+INSERT INTO {{ gensystems_tablename }} (name,blueprint_id,remote_id,role,status)
+VALUES
+{% for row in gen_systems %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}')
+  {% endif %}
+ON CONFLICT (remote_id) 
+DO NOTHING;
+{% endfor %}

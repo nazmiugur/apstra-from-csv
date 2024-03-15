@@ -1,0 +1,14 @@
+{%- for szone in sz_list %}
+{%- set vlan_list = [] %}
+       {%- for column in vnis.list %}
+       {%- set  vlan_list = vlan_list.append(
+
+{ "vlan_id": column['Vlan ID'], "ipv4_gw": column['Virtual Gateway IP'], "ip_subnet":column['IPv4 Subnet'], "name": column['Vlan Name']})  %}
+{%- endfor %}
+{%- set szl = [] %}
+{%- set szld = {} %}
+{%- set szl = szld.update({ "name": szone }) %}
+{%- set szl = szld.update({ "vns": vlan_list }) %}
+{%- set szop = {"sz": szld } %}
+{{ szop }}
+{%- endfor %}

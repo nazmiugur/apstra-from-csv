@@ -1,0 +1,67 @@
+---
+# tasks file for create_vn
+#
+
+    - name: Initialize Variables
+      ansible.builtin.set_fact: 
+        leaf_ids: ""
+
+    - name: Get Device ID
+      ansible.builtin.include_role:
+        name: get_node_system
+      vars:
+        node_type: system
+   
+    - name: show vn_switches
+      ansible.builtin.debug:
+        msg: "{{ vn['switches'] }}"
+    
+    
+    - name: set system id
+      ansible.builtin.set_fact:
+        leaf_ids: "{{ node_system.json | cleanup_specific_leaf_ids(vn['switches']) }}"
+      when: leaf_ids == ""
+
+    - name: show leaf_ids
+      ansible.builtin.debug:
+        msg: "{{ leaf_ids }}"
+
+    - name: show body of createvn
+      ansible.builtin.debug:
+        msg: "{{ lookup('template','create_vn.j2') }}"
+
+
+    - name: "Create Virtual Networks"
+      ansible.builtin.uri:
+        url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/virtual-networks-batch?async=full"
+        method: POST
+        return_content: yes
+        status_code: 202
+        headers:
+          content-type: "application/json"
+          AUTHTOKEN: "{{ login.json.token }}"
+        validate_certs: false
+        force_basic_auth: yes
+        body: "{{ lookup('template','create_vn.j2') }}"
+        body_format: json
+      ignore_errors: yes
+
+
+
+
+
+### ---------------------------------------------------------------------------
+### ASSIGN EVPN L3 VNIS
+### ---------------------------------------------------------------------------
+    - name: "Assign EVPN L3 VNIs"
+      uri:
+        url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/resource_groups/vni/evpn_l3_vnis"
+        method: PUT
+        status_code: 202
+        headers:
+          content-type: "application/json"
+          AUTHTOKEN: "{{ login.json.token }}"
+        validate_certs: false
+        body: '{"pool_ids":["Default-10000-20000"]}'
+        body_format: json
+

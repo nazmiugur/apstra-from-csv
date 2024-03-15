@@ -1,0 +1,19 @@
+{% if szs_info[0] != [] %}
+INSERT INTO {{ sz_tablename }} (name,blueprint_id,remote_id,status)
+VALUES
+{% for row in szs_info[0] %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}')
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if szs_info[1] != [] %}
+   {% for row in szs_info[1] %}
+   DELETE FROM {{ sz_tablename }}
+   WHERE remote_id='{{ row }}';
+   {% endfor %}
+{% endif %}

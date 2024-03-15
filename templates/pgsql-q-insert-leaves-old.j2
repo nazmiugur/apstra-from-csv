@@ -1,0 +1,10 @@
+INSERT INTO {{ leaves_tablename }} (remote_id,name,blueprint_id,rack_id,status)
+VALUES
+{% for row in leaves_only %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}');
+  {% endif %}
+{% endfor %}

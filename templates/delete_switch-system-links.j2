@@ -1,0 +1,20 @@
+ {
+    "operations": [
+      {
+        "path": "/delete-switch-system-links",
+        "method": "POST",
+        "payload": {
+          "link_ids": [
+            {% for linkid in linkids %}
+              {% if not loop.last %}
+              "{{ linkid }}",
+              {% endif %}
+              {% if loop.last %}
+              "{{ linkid }}"
+              {% endif %} 
+            {% endfor %}
+          ]
+        }
+      }
+    ]
+  }

@@ -1,0 +1,16 @@
+Vlan Name;Vlan ID;VNI ID;Connectivity Template;IPv4 Subnet;Virtual Gateway IP;VRF;Switches;
+ILO_10_25_90_3_24;100;800100;;-;-;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+NET-pdom0_data2;123;800123;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+NET-pdom0_data1;124;800124;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+NET-pdom6_data1;223;800223;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+ILO_10_25_101_3_24;101;800101;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+ILO_10_25_102_3_24;102;800102;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+ILO_10_25_103_3_24;103;800103;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+ILO_10_25_104_3_24;104;800104;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+NET01_10_25_105_3_28;105;800105;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+NET02_10_25_110_3_28;110;800110;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+PA_10_215_150_3_24;500;800500;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+PA_10_215_151_3_24;501;800501;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+PA_10_215_160_3_24;600;800600;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+DC_FW_NET;1100;801100;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;
+NET_replikasyon;1275;801275;;;;DC_VRF;sekom_rack_1_esi_001_leaf1,sekom_rack_1_esi_001_leaf2,sekom_acx_rack_001_leaf1;

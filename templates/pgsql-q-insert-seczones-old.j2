@@ -1,0 +1,7 @@
+{% for row in seczones %}
+INSERT INTO {{ sz_tablename }} (name,blueprint_id,remote_id,status)
+VALUES
+  ({{ row }},'{{ datetime_of_pb }}')
+ON CONFLICT (remote_id) DO NOTHING;
+{% endfor %}
+

@@ -1,0 +1,19 @@
+{% if systems_info[0] != [] %}
+INSERT INTO {{ gensystems_tablename }} (name,blueprint_id,remote_id,role,status)
+VALUES
+{% for row in systems_info[0] %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}')
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if systems_info[1] != [] %}
+   {% for row in systems_info[1] %}
+   DELETE FROM {{ gensystems_tablename }}
+   WHERE remote_id='{{ row }}';
+   {% endfor %}
+{% endif %}

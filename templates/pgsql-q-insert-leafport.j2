@@ -1,0 +1,24 @@
+{% if leafport_info[0] != [] %}
+INSERT INTO {{ leafport_tablename }} (name,speed,blueprint_id,remote_id,leaf_id,status)
+VALUES
+{% for row in leafport_info[0] %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}');
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if leafport_info[1] != [] %}
+   {% for record in leafport_info[1] %}
+   DELETE FROM {{ leafport_tablename }}
+   WHERE 
+   name='{{ record[0] }}'  AND
+   blueprint_id='{{ record[1] }}'  AND
+   speed='{{ record[2] }}'  AND
+   remote_id='{{ record[3] }}'  AND
+   leaf_id='{{ record[4] }}';
+   {% endfor %}
+{% endif %}

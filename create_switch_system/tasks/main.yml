@@ -1,0 +1,223 @@
+---
+# tasks file for create_switch_system
+
+  ### ---------------------------------------------------------------------------
+  ### APSTRA API AUTOMATION
+  ### ---------------------------------------------------------------------------
+- name: set switch1 leaf name
+  ansible.builtin.set_fact:
+    switch_name: "{{ gensystem.switchport[0].keys() | list | string }}"
+    switch1_if_name: "{{ gensystem.switchport[0].values() | list | string }}"
+  when: gensystem.switchport | list | length >=1
+
+- name: remove sqr paranth. from variable
+  ansible.builtin.set_fact:
+    switch_name: "{{ switch_name.replace('[','').replace(']','')}}"
+    switch1_if_name: "{{ switch1_if_name.replace('[','').replace(']','').replace(\"'\",'') }}"
+
+- name: set interface tags string
+  ansible.builtin.set_fact:
+    interface_tags_str: "{{ gensystem.tag }}"
+
+
+- name: set interface tags list
+  ansible.builtin.set_fact:
+    interface_tags: "{{ interface_tags_str | split(',') }}"
+  when: interface_tags_str | split(',') | length > 1
+
+
+- name: show interface tags
+  ansible.builtin.debug:
+    msg: "{{ interface_tags }}"
+  when: interface_tags is defined
+
+
+- name: show gensystem
+  ansible.builtin.debug:
+    msg: "{{ gensystem }}"
+
+
+- name: show switch_name a.k.a first switchs' name
+  ansible.builtin.debug:
+    msg: "{{ lookup('template','gquery-to-leaf.j2') }}"
+  vars:
+    switchlabel: "{{ switch_name }}"
+
+- name: set switch2 leaf name
+  ansible.builtin.set_fact:
+    switch2_name: "{{ gensystem.switchport[1].keys() | list | string }}"
+    switch2_if_name: "{{ gensystem.switchport[1].values() | list | string }}"
+  when: gensystem.switchport | list | length == 2
+
+- name: show switch2_name a.k.a second switchs' name
+  ansible.builtin.debug:
+    msg: "{{ switch2_name }}"
+  when: switch2_name is defined
+
+- name: remove sqr paranth. from variable
+  ansible.builtin.set_fact:
+    switch2_if_name: "{{ switch2_if_name.replace('[','').replace(']','').replace(''','') }}"
+    switch2_if_name: "{{ switch2_if_name.replace('[','').replace(']','').replace(\"'\",'') }}"
+
+
+- name: set gensystem_label a.k.a hostnam variable
+  ansible.builtin.set_fact:
+    gen_system_label: "{{ gensystem['generic host hostname'] }}"
+- name: set interface speed
+  ansible.builtin.set_fact:
+    interface_speed: "{{ gensystem['SPEED'].split('G')[0] }}"
+
+- name: remove sqr paranth. from variable
+  ansible.builtin.set_fact:
+    switch2_name: "{{ switch2_name.replace('[','').replace(']','')}}"
+  when: switch2_name is defined
+
+- name: send specific query get first leaf id
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ lookup('template','gquery-to-leaf.j2') }}"
+    force_basic_auth: yes
+    body_format: json
+  vars:
+    switchlabel: "{{ switch_name }}"  
+  register: leaf1qry
+  run_once: True
+
+
+- name: show query
+  ansible.builtin.debug:
+    msg: "{{ leaf1qry }}"
+
+- name: set switch id
+  ansible.builtin.set_fact:
+    switch_id: "{{ leaf1qry.json['items'][0].leaf.id }}"
+  when: switch_name is defined
+
+
+
+
+
+- name: send specific query get second leaf id
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ lookup('template','gquery-to-leaf.j2') }}"
+    force_basic_auth: yes
+    body_format: json
+  vars:
+    switchlabel: "{{ switch2_name }}"
+  register: leaf2qry
+  run_once: True
+  when: switch2_name is defined
+
+
+- name: set switch2 id
+  ansible.builtin.set_fact:
+    switch2_id: "{{ leaf2qry.json['items'][0].leaf.id }}"
+  when: switch2_name is defined
+
+
+- name: set body of the post request
+  ansible.builtin.set_fact:
+    switch_system_creation_body: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-dual.j2') }}"
+  when: switch2_name is defined
+
+
+- name: set body of the post request
+  ansible.builtin.set_fact:
+    switch_system_creation_body: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-mono.j2') }}"
+  when: switch2_name is not defined
+
+
+- name: show request body
+  ansible.builtin.debug:
+    msg: "{{ switch_system_creation_body | to_json }}"
+
+
+
+- name: create generic system
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/switch-system-links"
+    method: POST
+    return_content: yes
+    status_code: 201
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ switch_system_creation_body }}"
+    force_basic_auth: yes
+    body_format: json
+  run_once: True
+  ignore_errors: true
+
+
+- name: set gen_system_label to use template
+  ansible.builtin.set_fact:
+    gen_system_label: "{{ gensystem['generic host hostname'] }}"
+
+- name: set lag mode if active
+  ansible.builtin.set_fact:
+    lag_mode: "lacp_active"
+  when: gensystem['etherchannel tipi'] == "LACP ACTIVE"
+
+
+- name: set lag mode if passive
+  ansible.builtin.set_fact:
+    lag_mode: "lacp_passive"
+  when: gensystem['etherchannel tipi'] == "LACP PASSIVE"
+
+- name: send query to get info about specific device
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ lookup('ansible.builtin.template', './templates/gquery-to-generic-system.j2') }}"
+    force_basic_auth: yes
+    body_format: json
+  register: genericDeviceInfo
+  run_once: True
+
+- name: set link id list
+  ansible.builtin.set_fact:
+    linkids: []
+
+
+- name: push ids to array
+  ansible.builtin.set_fact:
+    linkids: "{{  linkids + [ item['link']['id'] ] }}"
+  loop: "{{ genericDeviceInfo.json['items'] }}"
+
+- name: set generic system lacp mode
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/batch?comment=batch-api"
+    method: POST
+    return_content: yes
+    status_code: 201
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ lookup('ansible.builtin.template', './templates/set_generic_system_lag_mode.j2') }}"
+    force_basic_auth: yes
+    body_format: json
+  run_once: True
+  when: lag_mode is defined

@@ -1,0 +1,81 @@
+---
+- hosts: localhost
+  gather_facts: False
+  connection: local
+  roles:
+    - { role: apstra_auth }
+    - { role: get_bp_id }
+
+
+  tasks:
+    - name: read port template from csv file
+      community.general.read_csv:
+        path: "{{ portsfile }}"
+        delimiter: ";"
+      register: ports
+     
+
+    - name: read vni template from csv file
+      community.general.read_csv:
+        path: "{{ vnisfile }}"
+        delimiter: ";"
+      register: vnis
+
+
+
+    - name: show ports
+      ansible.builtin.debug:
+        msg: "{{ ports }}"
+    
+    - name: show vnis
+      ansible.builtin.debug:
+        msg: "{{ vnis.list }}"
+
+    - name: create sz raw list variable
+      ansible.builtin.set_fact:
+        sz_list_raw: []
+
+
+    - name: fill sz  raw list
+      ansible.builtin.set_fact:
+        sz_list_raw: "{{ sz_list_raw + [ item.VRF ] }}"
+      loop: "{{ vnis.list }}"
+
+    - name: set raw list
+      ansible.builtin.set_fact:
+        sz_list: "{{ sz_list_raw | unique }}"
+    
+
+    - name: set sz and vni data structure
+      ansible.builtin.set_fact:
+        vnimap: "{{ lookup('ansible.builtin.template', './templates/convert-excel-ds.j2') | to_json | from_json }}"
+
+    - name: show szones
+      ansible.builtin.debug:
+        msg: "{{ vnimap }}"
+
+
+    - name: Initialize Variables
+      ansible.builtin.set_fact:
+        leaf_ids: ""
+
+    - name: Get Device ID
+      ansible.builtin.include_role:
+        name: get_node_system
+      vars:
+        node_type: system
+   
+    - name: set leaf names temp
+      ansible.builtin.set_fact:
+        leaf_names: "apstra_esi_001_leaf1,apstra_esi_001_leaf2"
+
+    - name: set system id
+      ansible.builtin.set_fact:
+        leaf_ids: "{{ node_system.json | cleanup_specific_leaf_ids(leaf_names) }}"
+      when: leaf_ids == ""
+   
+
+    - name: show leaf ids
+      ansible.builtin.debug:
+        msg: "{{ leaf_ids }}"
+

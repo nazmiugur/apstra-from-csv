@@ -1,0 +1,28 @@
+{%- set tempopl = [] %} 
+{%- for szone in sz_list %}
+{%- set tempopd = {} %}
+{%- set vlan_list = [] %}
+{%- set szl = [] %}
+{%- set szld = {} %}
+     {%- for column in vnis.list %}
+         {%- set vnipars = [] %}
+         {%- set vniparsd = {} %}
+         {%- set vnipars = vniparsd.update({"vlan_id": column['Vlan ID']} ) %}
+         {%- set vnipars = vniparsd.update({"name": column['Vlan Name']} ) %}
+         {%- set vnipars = vniparsd.update({"vniid": column['VNI ID']} ) %}
+         {%- set vnipars = vniparsd.update({"switches": column['Switches']} ) %}
+         {%- if column['Virtual Gateway IP'] | length > 7 %}
+             {%- set vnipars = vniparsd.update({"ipv4_gw": column['Virtual Gateway IP']} ) %}
+         {%- endif %}
+         {%- if column['IPv4 Subnet'] | length > 7 %}
+             {%- set vnipars = vniparsd.update({"ip_subnet": column['IPv4 Subnet']} ) %}
+         {%- endif %}
+         {%- set vniparsd = vlan_list.append(vniparsd) %}
+         {%- set szl = szld.update({ "name": szone }) %}
+         {%- set szl = szld.update({ "vns": vlan_list }) %}
+         {%- set szop = {"szo": szld } %}
+         {%- set tempopd = tempopd.update(szop)%}
+      {%- endfor %}
+{%- set tempopl = tempopl.append(tempopd) %}
+{%- endfor %}
+{{ tempopl }}

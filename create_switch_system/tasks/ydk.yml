@@ -1,0 +1,92 @@
+---
+# tasks file for create_switch_system
+
+  ### ---------------------------------------------------------------------------
+  ### APSTRA API AUTOMATION
+  ### ---------------------------------------------------------------------------
+- name: switch system 
+  ansible.builtin.debug:
+    msg: "{{ gensystem }}"
+
+
+
+
+
+
+- name: send specific query get first leaf id       
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: {"query": "match(node('system', name='leaf', role='leaf', label='{{ switch_name }}'))"}
+    force_basic_auth: yes
+    body_format: json
+  register: leaf1qry
+  run_once: True
+
+- name: set switch id
+  ansible.builtin.set_fact:
+    switch_id: "{{ leaf1qry.json['items'][0].leaf.id }}"
+  when: switch2_name is defined
+
+
+
+- name: send specific query get second leaf id  
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: {"query": "match(node('system', name='leaf', role='leaf', label='{{ switch2_name }}'))"}
+    force_basic_auth: yes
+    body_format: json
+  register: leaf2qry
+  run_once: True
+  when: switch2_name is defined
+
+
+- name: set switch2 id
+  ansible.builtin.set_fact:
+    switch2_id: "{{ leaf2qry.json['items'][0].leaf.id }}"
+  when: switch2_name is defined
+
+
+
+- name: set body of the post request
+  ansible.builtin.set_fact:
+    switch_system_creation_body: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-dual.j2') }}"
+  when: switch2_name is defined
+
+
+- name: set body of the post request
+  ansible.builtin.set_fact:
+    switch_system_creation_body: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-mono.j2') }}"
+  when: switch2_name is not defined
+
+
+
+- name: create generic system
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/switch-system-links"
+    method: POST
+    return_content: yes
+    status_code: 201
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ switch_system_creation_body }}"
+    force_basic_auth: yes
+    body_format: json
+  run_once: True
+  ignore_errors: true
+

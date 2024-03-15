@@ -1,0 +1,40 @@
+{
+    "policies": [
+      {
+        "id": "{{ 9999999999999999999999 | random | ansible.builtin.to_uuid }}",
+        "label": "{{ ct_name }}",
+        "description": "",
+        "policy_type_name": "batch",
+        "attributes": {
+          "subpolicies": [
+            "0a8e99c5-62e7-452b-acda-2957b2f36ecc"
+          ]
+        },
+        "visible": true,
+        "user_data": "{\"isSausage\":true,\"positions\":{\"e357c81b-d528-4223-9e3c-8d4cd45b5c55\":[290,80,1]}}",
+        "tags": []
+      },
+      {
+        "id": "{{ 9999999999999999999999 | random | ansible.builtin.to_uuid }}",
+        "label": "Virtual Network (Single)",
+        "description": "Add a single VLAN to interfaces, as tagged or untagged.",
+        "policy_type_name": "AttachSingleVLAN",
+        "attributes": {
+          "vn_node_id": "{{ vn_id }}",
+          "tag_type": "untagged"
+        },
+        "visible": false	
+      },
+      {
+        "id": "{{ 9999999999999999999999 | random | ansible.builtin.to_uuid }}",
+        "label": "Virtual Network (Single) (pipeline)",
+        "description": "Add a single VLAN to interfaces, as tagged or untagged.",
+        "policy_type_name": "pipeline",
+        "attributes": {
+          "first_subpolicy": "e357c81b-d528-4223-9e3c-8d4cd45b5c55",
+          "second_subpolicy": null
+        },
+        "visible": false
+      }
+    ]
+  }

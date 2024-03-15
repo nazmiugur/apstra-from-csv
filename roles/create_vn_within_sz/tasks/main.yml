@@ -1,0 +1,49 @@
+---
+# tasks file for create_vn_within_sz
+- name: "Retrieve Security ID if not set"
+  block:
+  - name: "Get Security ID"
+    ansible.builtin.uri:
+      url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/nodes?node_type=security_zone"
+      method: GET
+      return_content: yes
+      status_code: 200
+      headers:
+        content-type: "application/json"
+        AUTHTOKEN: "{{ login.json.token }}"
+      validate_certs: false
+      force_basic_auth: yes
+    register: security
+- name: set sz
+  ansible.builtin.set_fact:
+    sz: "{{ szo.szo }}"  
+
+- name: show loopvar
+  ansible.builtin.debug:
+    msg: "LOOP COUNT"
+ 
+- name: show loopvar
+  ansible.builtin.debug:
+    msg: "{{ sz }}"
+- name: set security zone ID
+  ansible.builtin.set_fact:
+    sz_id: "{{ security.json | cleanup_security_zone(sz.name) }}"
+
+
+
+- name: include create_vn role
+  ansible.builtin.include_role:
+    name: create_vn
+  loop: "{{ sz.vns }}"
+  loop_control:
+    loop_var: vn
+
+
+
+
+
+- name: "Commit Changes"
+  include_role:
+    name: commit_changes
+
+

@@ -1,0 +1,20 @@
+{% if racks_info[0] != [] %}
+INSERT INTO {{ racks_tablename }} (name,blueprint_id,remote_id,status)
+VALUES
+{% for row in racks_info[0] %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}')
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if racks_info[1] != [] %}
+   {% for row in racks_info[1] %}
+   DELETE FROM {{ racks_tablename }}
+   WHERE remote_id='{{ row }}';
+   {% endfor %}
+{% endif %}
+

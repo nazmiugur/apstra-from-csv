@@ -1,0 +1,10 @@
+INSERT INTO {{ leafport_tablename }} (name,speed,blueprint_id,remote_id,leaf_id,status)
+VALUES
+{% for row in leaf_port_list %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}');
+  {% endif %}
+{% endfor %}

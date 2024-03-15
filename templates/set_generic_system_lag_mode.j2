@@ -1,0 +1,26 @@
+{
+    "operations": [
+      {
+        "path": "/leaf-server-link-labels",
+        "method": "PATCH",
+        "payload": {
+          "links": {
+            {% for linkid in linkids %}
+              {% if not loop.last %}
+             "{{ linkid }}": {
+              "group_label": "link1",
+              "lag_mode": "{{ lag_mode }}"
+            },
+              {% endif %}
+              {% if loop.last %}
+             "{{ linkid }}": {
+              "group_label": "link1",
+              "lag_mode": "{{ lag_mode }}"
+            }
+              {% endif %}
+            {% endfor %}
+          }
+        }
+      }
+    ]
+  }

@@ -1,0 +1,10 @@
+INSERT INTO {{ racks_tablename }} (name,blueprint_id,remote_id,status)
+VALUES
+{% for row in racks %}
+  {% if not loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}'),
+  {% endif %}
+  {% if loop.last %}
+  ({{ row }},'{{ datetime_of_pb }}');
+  {% endif %}
+{% endfor %}

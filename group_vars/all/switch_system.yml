@@ -1,0 +1,11 @@
+#logical_deviceid: AOS-1x10-1
+#logical_device_display_name: TSTSRVRHSTANS2
+#devicelabel: TSTSRVRHSTANS2
+#switch_if_name: xe-0/0/23
+#switch_name: isa_single_leaf_001_leaf1 
+
+logical_deviceid: AOS-1x1-1
+logical_device_display_name: TSTSANSL
+devicelabel: TSTSANSL
+switch_if_name: ge-0/0/7
+switch_name: leaf2 

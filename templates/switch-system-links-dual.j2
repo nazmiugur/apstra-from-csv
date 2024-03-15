@@ -1,0 +1,109 @@
+{
+    "links": [
+      {
+        "lag_mode": null,
+        "link_group_label": null,
+        "switch": {
+          "system_id": "{{ switch_id }}",
+          "transformation_id": 2,
+          "if_name": "{{ switch1_if_name }}"
+        },
+        "system": {
+          "system_id": null
+        }
+      },
+        {% if switch1_if2_name is defined %}
+        {
+        "lag_mode": null,
+        "link_group_label": null,
+        "switch": {
+          "system_id": "{{ switch_id }}",
+          "transformation_id": 2,
+          "if_name": "{{ switch1_if2_name }}"
+        },
+        "system": {
+          "system_id": null
+        },
+        },
+       {% endif %}
+      {
+        "lag_mode": null,
+        "link_group_label": null,
+        "switch": {
+          "system_id": "{{ switch2_id }}",
+          "transformation_id": 2,
+          "if_name": "{{ switch2_if_name }}"
+        },
+        "system": {
+          "system_id": null
+        }
+      }
+        {% if switch2_if2_name is defined %}
+         ,{
+        "lag_mode": null,
+        "link_group_label": null,
+        "switch": {
+          "system_id": "{{ switch2_id }}",
+          "transformation_id": 2,
+          "if_name": "{{ switch2_if2_name }}"
+        },
+        "system": {
+          "system_id": null
+        },
+       }
+       {% endif %}
+
+    ],
+    "new_systems": [
+      {
+        "system_type": "server",
+        {% if interface_tags is defined %}
+         "tags":
+          [
+          {%- for tagv in interface_tags %} 
+           "{{ tagv }}"{%- if not loop.last %},{% endif %}
+          {%- endfor %}
+          ],
+        {% endif %}	
+        "hostname": "{{ gen_system_label }}",
+        "label": "{{ gen_system_label }}",
+        "logical_device": {
+          {% if switch2_if2_name is defined  %}
+          "id": "AOS-4x{{ interface_speed }}-1",
+          "display_name": "AOS-4x{{ interface_speed }}-1",
+           {% else %}
+          "id": "AOS-2x{{ interface_speed }}-1",
+          "display_name": "AOS-2x{{ interface_speed }}-1",
+          {% endif %}
+          "panels": [
+            {
+              "port_groups": [
+                {
+                  "roles": [
+                    "leaf",
+                    "access"
+                  ],
+                  "count": 2,
+                  "speed": {
+                    "value": {{ interface_speed }},
+                    "unit": "G"
+                  }
+                }
+              ],
+              "port_indexing": {
+                "schema": "absolute",
+                "order": "T-B, L-R",
+                "start_index": 1
+              },
+              "panel_layout": {
+                "row_count": 1,
+                "column_count": 2
+              }
+            }
+          ]
+        },
+        "port_channel_id_min": 0,
+        "port_channel_id_max": 0
+      }
+    ]
+  }

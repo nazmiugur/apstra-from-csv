@@ -1,0 +1,18 @@
+{
+          "links": {
+            {% for linkid in linkids %}
+              {% if not loop.last %}
+             "{{ linkid }}": {
+              "group_label": "link{{loop.index}}",
+              "lag_mode": null
+            },
+              {% endif %}
+              {% if loop.last %}
+             "{{ linkid }}": {
+              "group_label": "link{{loop.index}}",
+              "lag_mode": null
+            }
+              {% endif %}
+            {% endfor %}
+          }
+ }
