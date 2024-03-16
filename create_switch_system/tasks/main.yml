@@ -180,6 +180,11 @@
     lag_mode: "lacp_passive"
   when: gensystem['etherchannel tipi'] == "LACP PASSIVE"
 
+- name: set lag mode if passive
+  ansible.builtin.set_fact:
+    lag_mode: ""
+  when: gensystem['etherchannel tipi'] | length < 2
+
 - name: send query to get info about specific device
   ansible.builtin.uri:
     url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
@@ -206,6 +211,10 @@
     linkids: "{{  linkids + [ item['link']['id'] ] }}"
   loop: "{{ genericDeviceInfo.json['items'] }}"
 
+- name: show lag mode
+  ansible.builtin.debug:
+    msg: "{{ lag_mode }}"
+
 - name: set generic system lacp mode
   ansible.builtin.uri:
     url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/batch?comment=batch-api"
@@ -220,4 +229,7 @@
     force_basic_auth: yes
     body_format: json
   run_once: True
-  when: lag_mode is defined
+  when: lag_mode | length > 2
+- name: show lag mode
+  ansible.builtin.debug:
+    msg: "{{ lag_mode }}"
