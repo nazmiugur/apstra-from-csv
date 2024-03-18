@@ -182,6 +182,13 @@
 
 - name: set lag mode if passive
   ansible.builtin.set_fact:
+    lag_mode: "static_lag"
+  when: gensystem['etherchannel tipi'] == "ON"
+
+
+
+- name: set lag mode if passive
+  ansible.builtin.set_fact:
     lag_mode: ""
   when: gensystem['etherchannel tipi'] | length < 2
 

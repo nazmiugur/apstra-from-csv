@@ -1,0 +1,74 @@
+---
+# tasks file for collect_interface_ids_of_host
+- name: set gen_system_label
+  ansible.builtin.set_fact:
+    gen_system_label: "{{ indvhost['generic host hostname'] }}"
+- name: set interface ids
+  ansible.builtin.set_fact:
+    interface_ids: []
+
+- name: query to get vpc id if interface in lacp mode
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ lookup('ansible.builtin.template', './templates/gquery-to-vpc.j2') }}"
+    force_basic_auth: yes
+    body_format: json
+  register: getVPCinfo
+  run_once: True
+  when: indvhost['etherchannel tipi'] != ""
+
+- name: set vpc id to empty string
+  ansible.builtin.set_fact:
+    vpcifid: ""
+
+- name: show vpc information
+  ansible.builtin.set_fact:
+    vpcifid: "{{ getVPCinfo.json['items'][0]['virtual_pc']['id'] }}"
+  when: 
+    - indvhost['etherchannel tipi'] != "" and
+      getVPCinfo.json['items'][0]['virtual_pc'] is defined
+- name: append vpc to interface ids
+  ansible.builtin.set_fact:
+    interface_ids: "{{ interface_ids + [ vpcifid ] }}"
+  when: vpcifid != ""
+
+
+
+- name: query to get vpc id if interface in non lacp mode
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ lookup('ansible.builtin.template', './templates/gquery-to-non-vpc.j2') }}"
+    force_basic_auth: yes
+    body_format: json
+  register: IfLinkInfo
+  run_once: True
+  when: indvhost['etherchannel tipi'] == ""
+
+
+
+
+- name: set_interface_ids
+  ansible.builtin.set_fact:
+    interface_ids: "{{ interface_ids + [ item['intf']['id'] ] }}"
+  loop: "{{ IfLinkInfo.json['items'] }}"
+  when: indvhost['etherchannel tipi'] == ""
+
+
+
+- name: show interface ids
+  ansible.builtin.debug:
+    msg: "{{ interface_ids }}"  

@@ -2,12 +2,12 @@ etherchannel;etherchannel tipi;port vlan;trunk allowed vlans;generic host hostna
 vpc 204;LACP ACTIVE;223;;M8-6-pdom0-data1;TAG_1,TAG_2,TAG_3;WJ3723360190;sekom_rack_1_esi_001_leaf1;xe-0/0/10;25G;M8-6-pdom0_data1
 vpc 205;ON;123;;M8-6-pdom0-data2;TAG_4,TAG_1;WJ3723360190;sekom_rack_1_esi_001_leaf1;xe-0/0/11;25G;M8-6-pdom0_data2
 vpc 206;LACP ACTIVE;124;;M8-6-pdom1-data1;TAG_4,TAG_1;WJ3723360190;sekom_rack_1_esi_001_leaf1;xe-0/0/12;25G;M8-6-pdom1_data1
-vpc 207;LACP ACTIVE;trunk ;400,401,402,403,404,405,410,500,501,600;M8-6-pdom2-data2;TAG_4,TAG_1;WJ3723360190;sekom_rack_1_esi_001_leaf1;xe-0/0/13;25G;M8-6-pdom2_data2
+vpc 207;LACP ACTIVE;trunk ;100,123,124,223,101,102,103,104,105,110,500,501,600,1100,1275;M8-6-pdom2-data2;TAG_4,TAG_1;WJ3723360190;sekom_rack_1_esi_001_leaf1;xe-0/0/13;25G;M8-6-pdom2_data2
 ;;1275;;Isilon-replikasyon;TAG_10;WJ3723360190;sekom_rack_1_esi_001_leaf1;xe-0/0/14;25G;Isilon_replikasyon_1
 vpc 204;LACP ACTIVE;223;;M8-6-pdom0-data1;TAG_1,TAG_2,TAG_3;WJ3723440088;sekom_rack_1_esi_001_leaf2;xe-0/0/10;25G;M8-6-pdom0_data1
 vpc 205;ON;123;;M8-6-pdom0-data2;TAG_4,TAG_1;WJ3723440088;sekom_rack_1_esi_001_leaf2;xe-0/0/11;25G;M8-6-pdom0_data2
 vpc 206;LACP ACTIVE;124;;M8-6-pdom1-data1;TAG_4,TAG_1;WJ3723440088;sekom_rack_1_esi_001_leaf2;xe-0/0/12;25G;M8-6-pdom1_data1
-vpc 207;LACP ACTIVE;trunk ;400,401,402,403,404,405,410,500,501,600;M8-6-pdom2-data2;TAG_4,TAG_1;WJ3723440088;sekom_rack_1_esi_001_leaf2;xe-0/0/13;25G;M8-6-pdom2_data2
+vpc 207;LACP ACTIVE;trunk ;100,123,124,223,101,102,103,104,105,110,500,501,600,1100,1275;M8-6-pdom2-data2;TAG_4,TAG_1;WJ3723440088;sekom_rack_1_esi_001_leaf2;xe-0/0/13;25G;M8-6-pdom2_data2
 ;;1275;;Isilon-replikasyon;TAG_10;WJ3723440088;sekom_rack_1_esi_001_leaf2;xe-0/0/14;25G;Isilon_replikasyon_2
 po 1100;LACP ACTIVE;1100;;DC-FW-1;TAG_11;WJ3723440088;sekom_rack_1_esi_001_leaf1;xe-0/0/15;25G;DC-FW-1-1
 po 1100;LACP ACTIVE;1100;;DC-FW-1;TAG_11;WJ3723440088;sekom_rack_1_esi_001_leaf1;xe-0/0/16;25G;DC-FW-1-2

@@ -40,3 +40,16 @@
     - name: show portlist
       ansible.builtin.debug:
         msg: "{{ portlist }}"
+   
+
+    - name: include to get interface ids 
+      ansible.builtin.include_role:
+        name: collect_interface_ids_of_host
+      loop: "{{ portlist }}"
+      loop_control:
+        loop_var: indvhost
+
+
+
+
+

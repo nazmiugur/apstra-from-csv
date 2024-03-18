@@ -45,10 +45,28 @@
       ansible.builtin.debug:
         msg: "{{ vnimap }}"
 
+    - name: send specific query to get the ct_name
+      ansible.builtin.uri:
+        url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+        method: POST
+        return_content: yes
+        status_code: 200
+        headers:
+          Content-Type: "application/json"
+          AUTHTOKEN: "{{ login.json.token }}"
+        validate_certs: false
+        body: {"query": "match(node('ep_endpoint_policy', name='ct'))"}
+        force_basic_auth: yes
+        body_format: json
+      register: ct_qry
+      run_once: True
+
+
     - name: include associate_ct role
       ansible.builtin.include_role:
         name: assosicate_ct
       loop: "{{ ports.list }}"
       loop_control:
         loop_var: indvport
+
 

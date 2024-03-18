@@ -1,58 +1,6 @@
 ---
 # tasks file for assosicate_ct
 
-- name: query to collect interface with tags
-  ansible.builtin.uri:
-    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/obj-policy-application-points"
-    method: POST
-    return_content: yes
-    status_code: 201
-    headers:
-      Content-Type: "application/json"
-      AUTHTOKEN: "{{ login.json.token }}"
-    validate_certs: false
-    #          body: { 'interface_tags': '{{ interface_tag }}' }
-    force_basic_auth: yes
-    body_format: json
-  register: qry
-  ignore_errors: true
-  run_once: True
-
-
-
-
-- name: setvariables
-  ansible.builtin.set_fact:
-    leaf_label: "{{ indvport['SWITCH'] }}"
-
-
-- name: setvariables
-  ansible.builtin.set_fact:
-    interface_label: "{{ indvport['PORT'] }}"
-
-
-
-- name: set extracted data variable
-  ansible.builtin.set_fact:
-    tagged_ifs: "{{ qry.json.application_points | extract_nested_children  }}"
-
-
-- name: set flatten interface list
-  ansible.builtin.set_fact:
-    flatten_if_list: "{{ tagged_ifs['children'] | flatten_children_list_to_ifs }}"   
-
-- name: get interfaces_ids empty list
-  ansible.builtin.set_fact:
-    interface_ids: []
-
-
-- name: get interfaces to be associated with connectivity template
-  ansible.builtin.set_fact:
-    interface_ids: "{{ interface_ids + [ item.interface_aep_id ] }}"
-  when: 
-    - '"{{ interface_label }}" in item.interface_aep_label'
-    - '"{{ leaf_label }}" in item.sw_label'
-  loop: "{{ flatten_if_list }}"
 
 - name: set connection templates initialize
   ansible.builtin.set_fact:
@@ -61,12 +9,23 @@
 - name: set connection templates initialize
   ansible.builtin.set_fact:
     cts_tagged: []
+    vlans_tagged: []
+
+- name: initialize cts_untagged
+  ansible.builtin.set_fact:
+    ct_untagged: ""
+
+- name: show cts untagged
+  ansible.builtin.debug:
+    msg: "{{ ct_untagged }}"
 
 
 - name: set untagged ct name
   ansible.builtin.set_fact:
     ct_untagged: "Untagged VxLAN '{{ vnimap | get_vni_name_from_vlanid(indvport['port vlan']) }}'"
   when: indvport['port vlan'] != ""
+
+
 
 - name: show preparse data
   ansible.builtin.debug:
@@ -75,7 +34,7 @@
 
 - name: set if it has tagged vlan
   ansible.builtin.set_fact:
-    cts_tagged: "{{ cts_tagged + [ \"Tagged VxLAN\" + \'+(vnimap | get_vni_name_from_vlanid(item) | string )+\' ] }}"  
+    vlans_tagged: "{{ vlans_tagged + [ item ] }}"  
   loop: "{{ indvport['trunk allowed vlans'] | split(',') }}"
   when: 
     - indvport['trunk allowed vlans'] != ""
@@ -85,14 +44,36 @@
   ansible.builtin.debug:
     msg: "{{ indvport }}"
 
-- name: show cts untagged
-  ansible.builtin.debug:
-    msg: "{{ ct_untagged }}"
 
-- name: show cts tagged
+- name: set cts tagged
+  ansible.builtin.set_fact:
+    cts_tagged: "{{ vnimap | get_vni_names_from_vlanids(vlans_tagged)  }}"
+
+
+
+- name: show cts_tagged
   ansible.builtin.debug:
     msg: "{{ cts_tagged }}"
+- name: set indvhost to indvport
+  ansible.builtin.set_fact:
+    indvhost: "{{ indvport }}"
+
+- name: include to get interface ids
+  ansible.builtin.include_role:
+    name: collect_interface_ids_of_host
 
 
 
+- name: include associate_ct role
+  ansible.builtin.include_role:
+    name: assosicate_ct_request
+  loop: "{{ cts_tagged }}"
+  loop_control:
+    loop_var: ct_name 
 
+- name: include associate_ct role untagged
+  ansible.builtin.include_role:
+    name: assosicate_ct_request
+  vars:
+    ct_name: "{{ ct_untagged }}"
+  when: ct_untagged != ""

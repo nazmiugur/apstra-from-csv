@@ -1,31 +1,12 @@
 ---
 # tasks file for assosicate_ct_request
 
-- name: send specific query to get the ct_name
-  ansible.builtin.uri:
-    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
-    method: POST
-    return_content: yes
-    status_code: 200
-    headers:
-      Content-Type: "application/json"
-      AUTHTOKEN: "{{ login.json.token }}"
-    validate_certs: false
-    body: {"query": "match(node('ep_endpoint_policy', name=\"{{ ct_name }}\"))"}
-    force_basic_auth: yes
-    body_format: json
-  register: tstqry
-  run_once: True
 
 
 - name: narrow down the ct_name list
   ansible.builtin.set_fact:
-    ct_name_list: "{{ tstqry.json | dict2items }}"
+    ct_name_list: "{{ ct_qry.json | dict2items }}"
 
-- name: show ct_nams
-  ansible.builtin.debug:
-    msg: "{{ item[ct_name].id }}"
-  loop: "{{ ct_name_list[0].value }}"
 
 - name: create ct_name list id variable
   ansible.builtin.set_fact:
@@ -37,13 +18,10 @@
      ct_name_list_id: "{{ ct_name_list_id + [ item[ct_name].id ] }}"
   ignore_errors: yes
   when:
-    - item[ct_name].id != None and item[ct_name].label == ct_name
+    - item['ct'].id != None and item['ct'].label == ct_name
   loop: "{{ ct_name_list[0].value }}"
 
 
-- name: show ct_names with id
-  ansible.builtin.debug:
-    msg: "{{ ct_name_list_id[0] }}" 
 
 - name: show request body
   ansible.builtin.debug:
