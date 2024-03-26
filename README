@@ -1,0 +1,19 @@
+## VNI, Connectivity template, generic system creation and CT association using Apstra APIs
+
+This project contains scripts that reads from csv files and create vni, generic systems, connectivity templates and also do associations with connectivity templates and ports according to csv data.
+It uses several roles and plugins from github.com:Juniper-SE/apstra-create-vns.git
+Follow the steps below to run the scripts
+* Edit the group_vars/all/secrets.yml file and include the  credentials
+* Run the scripts
+# to create vn, connectivity template and generic system use:
+ansible-playbook  read_csv_and_create_vni.yml -e portsfile=ports3.csv -e vnisfile=vnis.csv   
+## to do assoications use
+ansible-playbook read_csv_and_associate.yml -e portsfile=ports3.csv -e vnisfile=vnis.csv   
+
+portsfile: defining physical topology. Follow the column naming pattern exactly like in port3.csv
+vnisfile: defining vlan id, vni name, assoicated switch listed .  Follow the column naming pattern exactly like in vnis.csv
+
+
+## Author Information
+Nazmi Ugur
+
