@@ -4,6 +4,11 @@
   ansible.builtin.set_fact:
     vn_name: "{{ vn['name'] }}"
 
+
+- name: set vn_vlanid parameter
+  ansible.builtin.set_fact:
+    vn_vlanid: "{{ vn['vlan_id'] }}"
+    
     
 
 - name: Get virtual networks
@@ -43,45 +48,45 @@
     force_basic_auth: yes
     body_format: json
   vars:
-    ct_name_qry: Untagged VxLAN \'{{ vn_name }}\'
+    ct_name_qry: Untagged VLAN{{ vn_vlanid }} \'{{ vn_name }}\'
   register: ct_untagged_qry
   run_once: True
 
-- name: send specific query to get the ct_name with label for tagged ct
-  ansible.builtin.uri:
-    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
-    method: POST
-    return_content: yes
-    status_code: 200
-    headers:
-      Content-Type: "application/json"
-      AUTHTOKEN: "{{ login.json.token }}"
-    validate_certs: false
-    body: {"query": "match(node('ep_endpoint_policy', name=\"{{ ct_name_qry }}\", label=\"{{ ct_name_qry }}\"))"}
-    force_basic_auth: yes
-    body_format: json
-  vars:
-    ct_name_qry: Tagged VxLAN \'{{ vn_name }}\'
-  register: ct_tagged_qry
-  run_once: True
+  #- name: send specific query to get the ct_name with label for tagged ct
+  # ansible.builtin.uri:
+  #  url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+  #  method: POST
+  #  return_content: yes
+  #  status_code: 200
+  #  headers:
+  #    Content-Type: "application/json"
+  #    AUTHTOKEN: "{{ login.json.token }}"
+  #  validate_certs: false
+  #  body: {"query": "match(node('ep_endpoint_policy', name=\"{{ ct_name_qry }}\", label=\"{{ ct_name_qry }}\"))"}
+  #  force_basic_auth: yes
+  #  body_format: json
+  #vars:
+  #  ct_name_qry: Tagged VxLAN \'{{ vn_name }}\'
+  #register: ct_tagged_qry
+  #run_once: True
 
 
-- name: "Create connectivity template"
-  uri:
-    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/obj-policy-import"
-    method: PUT
-    status_code: 204
-    headers:
-      content-type: "application/json"
-      AUTHTOKEN: "{{ login.json.token }}"
-    validate_certs: false
-    force_basic_auth: yes
-    body: "{{ lookup('ansible.builtin.template','templates/connectivity-template.j2') }}"
-    body_format: json
-  vars:
-    ct_name: Tagged VxLAN \'{{ vn_name }}\'
-  when: ct_tagged_qry.json.count == 0 
-  ignore_errors: yes
+  # name: "Create connectivity template"
+  #uri:
+  #  url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/obj-policy-import"
+  #  method: PUT
+  #  status_code: 204
+  #  headers:
+  #    content-type: "application/json"
+  #    AUTHTOKEN: "{{ login.json.token }}"
+  #  validate_certs: false
+  #  force_basic_auth: yes
+  #  body: "{{ lookup('ansible.builtin.template','templates/connectivity-template.j2') }}"
+  #  body_format: json
+  #vars:
+  #  ct_name: Tagged VxLAN \'{{ vn_name }}\'
+  #when: ct_tagged_qry.json.count == 0 
+  #ignore_errors: yes
 
 - name: "Create connectivity template"
   uri:
@@ -96,7 +101,7 @@
     body: "{{ lookup('ansible.builtin.template','templates/connectivity-template-untagged.j2') }}"
     body_format: json
   vars:
-    ct_name: Untagged VxLAN \'{{ vn_name }}\'
+    ct_name: Untagged VLAN{{ vn_vlanid }} \'{{ vn_name }}\'
   when: ct_untagged_qry.json.count == 0 
   ignore_errors: yes
   
