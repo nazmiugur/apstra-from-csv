@@ -32,9 +32,9 @@
   when: interface_tags is defined
 
 
-- name: show gensystem
+- name: show gensystem switchpport
   ansible.builtin.debug:
-    msg: "{{ gensystem }}"
+    msg: "{{ gensystem.switchport }}"
 
 
 - name: show switch_name a.k.a first switchs' name
@@ -58,7 +58,7 @@
   ansible.builtin.set_fact:
     switch2_if_name: "{{ switch2_if_name.replace('[','').replace(']','').replace(''','') }}"
     switch2_if_name: "{{ switch2_if_name.replace('[','').replace(']','').replace(\"'\",'') }}"
-
+  when: switch2_name is defined
 
 - name: set gensystem_label a.k.a hostnam variable
   ansible.builtin.set_fact:
