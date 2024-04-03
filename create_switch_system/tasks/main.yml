@@ -52,13 +52,13 @@
 - name: show switch2_name a.k.a second switchs' name
   ansible.builtin.debug:
     msg: "{{ switch2_name }}"
-  when: switch2_name is defined
+  when: (switch2_name is defined ) and ( switch2_name | length > 1)
 
 - name: remove sqr paranth. from variable
   ansible.builtin.set_fact:
     switch2_if_name: "{{ switch2_if_name.replace('[','').replace(']','').replace(''','') }}"
     switch2_if_name: "{{ switch2_if_name.replace('[','').replace(']','').replace(\"'\",'') }}"
-  when: switch2_name is defined
+  when: (switch2_name is defined ) and ( switch2_name | length > 1)
 
 - name: set gensystem_label a.k.a hostnam variable
   ansible.builtin.set_fact:
@@ -70,7 +70,7 @@
 - name: remove sqr paranth. from variable
   ansible.builtin.set_fact:
     switch2_name: "{{ switch2_name.replace('[','').replace(']','')}}"
-  when: switch2_name is defined
+  when: (switch2_name is defined ) and ( switch2_name | length > 1)
 
 - name: send specific query get first leaf id
   ansible.builtin.uri:
@@ -89,6 +89,7 @@
     switchlabel: "{{ switch_name }}"  
   register: leaf1qry
   run_once: True
+
 
 
 - name: show query
@@ -127,13 +128,12 @@
 - name: set switch2 id
   ansible.builtin.set_fact:
     switch2_id: "{{ leaf2qry.json['items'][0].leaf.id }}"
-  when: switch2_name is defined
-
+  when: (switch2_name is defined ) and ( switch2_name | length > 1)
 
 - name: set body of the post request
   ansible.builtin.set_fact:
     switch_system_creation_body: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-dual.j2') }}"
-  when: switch2_name is defined
+  when: (switch2_name is defined ) and ( switch2_name | length > 1)
 
 
 - name: set body of the post request
@@ -240,3 +240,7 @@
 - name: show lag mode
   ansible.builtin.debug:
     msg: "{{ lag_mode }}"
+
+- name: unset switch2_name
+  ansible.builtin.set_fact:
+    switch2_name: ""
