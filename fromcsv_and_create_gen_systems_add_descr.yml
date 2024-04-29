@@ -1,0 +1,51 @@
+---
+- hosts: localhost
+  gather_facts: False
+  connection: local
+  roles:
+    - { role: apstra_auth }
+    - { role: get_bp_id }
+
+
+  tasks:
+    - name: read port template from csv file
+      community.general.read_csv:
+        path: "{{ portsfile }}"
+        delimiter: ";"
+      register: ports
+     
+
+    - name: read vni template from csv file
+      community.general.read_csv:
+        path: "{{ vnisfile }}"
+        delimiter: ";"
+      register: vnis
+
+
+
+    - name: show ports
+      ansible.builtin.debug:
+        msg: "{{ ports }}"
+    
+    - name: show vnis
+      ansible.builtin.debug:
+        msg: "{{ vnis.list }}"
+
+
+    
+    - name: set sz and vni data structure
+      ansible.builtin.set_fact:
+        vnimap: "{{ lookup('ansible.builtin.template', './templates/convert-excel-ds-flat.j2') | to_json | from_json }}"
+
+
+    
+    - name: consolidate ports of the same host in single dictionary
+      ansible.builtin.set_fact:
+        portlist: "{{ ports.list | consolidate_port_raws_in_csv }}"
+
+
+
+    - name: show portslist
+      ansible.builtin.debug:
+        msg: "{{ portlist }}"
+

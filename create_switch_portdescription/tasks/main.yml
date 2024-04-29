@@ -1,0 +1,63 @@
+---
+# tasks file for create_switch_portdescription
+- name: set switch name
+  ansible.builtin.set_fact:
+     switch_label: "{{ gensystem.SWITCH }}"
+
+- name: set interface name
+  ansible.builtin.set_fact:
+     interface_label: "{{ gensystem.PORT }}"
+- name: set new interface description
+  ansible.builtin.set_fact:
+    new_interface_description: "{{ gensystem['NEW DESCRIPTION'] }}"
+
+
+- name: show switch and port
+  ansible.builtin.debug:
+    msg: "{{ switch_label }}   {{ interface_label }}"
+
+- name: show request priort to sending
+  ansible.builtin.debug:
+    msg: "{{ lookup('ansible.builtin.template', './templates/gquery-to-interface_id.j2') }}"
+
+
+- name: send query to get interface id
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+    method: POST
+    return_content: yes
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    body: "{{ lookup('ansible.builtin.template', './templates/gquery-to-interface_id.j2') }}"
+    force_basic_auth: yes
+    body_format: json
+  register: getInterfaceWithIDRaw
+  run_once: True
+
+- name: set interface id
+  ansible.builtin.set_fact:
+    interface_id: "{{ getInterfaceWithIDRaw.json['items'][0]['iface']['id'] }}"
+  when: getInterfaceWithIDRaw.json['items'] != []
+
+- name: show interface id
+  ansible.builtin.debug:
+    msg: "{{ getInterfaceWithIDRaw.json }}"
+  when: getInterfaceWithIDRaw.json['items'] != []
+
+- name: Set interface description 
+  ansible.builtin.uri:
+    url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/nodes/{{ interface_id }}"
+    method: PATCH
+    status_code: 202
+    headers:
+      content-type: "application/json"
+      AUTHTOKEN: "{{ login.json.token }}"
+    validate_certs: false
+    force_basic_auth: yes
+    body: "{{ lookup('ansible.builtin.template', './templates/create-description-to-interface.j2') }}"
+    body_format: json
+  ignore_errors: true
+  when: interface_id is defined

@@ -1,0 +1,1 @@
+{"query": "match(node('system', name='system', deploy_mode='deploy', role=is_in(['leaf', 'spine']), label='{{ switch_label }}').out('hosted_interfaces').node('interface', name='iface', if_name='{{ interface_label }}'))"}
